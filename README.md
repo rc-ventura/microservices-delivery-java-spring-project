@@ -1,6 +1,10 @@
+Aqui está uma versão atualizada do README, levando em consideração a remoção do Ribbon Load Balancer e a inclusão do Resilience4j para implementação do circuit breaker:
+
+---
+
 # README: Microserviço de Pagamento para Delivery
 
-Este é um microserviço de pagamento para um sistema de delivery, desenvolvido em Java com Spring Boot. Este README fornece instruções sobre como configurar e executar o microserviço, incluindo a configuração de uma API REST, um serviço de descoberta, um balanceador de carga e um gateway.
+Este é um microserviço de pagamento para um sistema de delivery, desenvolvido em Java com Spring Boot. Este README fornece instruções sobre como configurar e executar o microserviço, incluindo a configuração de uma API REST, um serviço de descoberta, um gateway e a implementação de resiliência com o Resilience4j.
 
 ## Tecnologias Utilizadas
 
@@ -8,7 +12,8 @@ Este é um microserviço de pagamento para um sistema de delivery, desenvolvido 
 - Spring Boot
 - Spring Cloud Netflix (Eureka Service Discovery)
 - Spring Cloud Netflix (Zuul API Gateway)
-- Spring Cloud Netflix (Ribbon Load Balancer)
+- Spring Cloud OpenFeign (Cliente HTTP para comunicação entre microserviços)
+- Resilience4j (Circuit Breaker)
 - Maven
 
 ## Configuração do Ambiente
@@ -66,23 +71,30 @@ server.port=8080
 eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
 ```
 
-## Configuração do Ribbon Load Balancer
+## Implementação do Resilience4j (Circuit Breaker)
 
-O Ribbon será usado como um balanceador de carga para distribuir solicitações entre várias instâncias do microserviço de pagamento.
+O Resilience4j será utilizado para implementar o circuit breaker e melhorar a resiliência do sistema em caso de falhas de comunicação entre microserviços.
 
-1. Adicione a dependência do Ribbon no arquivo `pom.xml` do microserviço de pagamento.
+1. Adicione a dependência do Resilience4j no arquivo `pom.xml` do microserviço de pagamento.
 
 ```xml
 <dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+    <groupId>io.github.resilience4j</groupId>
+    <artifactId>resilience4j-spring-boot2</artifactId>
+    <version>1.7.0</version>
 </dependency>
 ```
 
-2. Configure as propriedades do Ribbon no arquivo `application.properties`:
+2. Configure o circuit breaker do Resilience4j no arquivo `application.properties`:
 
 ```properties
-payment-service.ribbon.listOfServers=http://localhost:8081,http://localhost:8082
+# Configuração do circuit breaker
+resilience4j.circuitbreaker.instances.payment-service.registerHealthIndicator=true
+resilience4j.circuitbreaker.configs.default.slidingWindowSize=10
+resilience4j.circuitbreaker.configs.default.minimumNumberOfCalls=5
+resilience4j.circuitbreaker.configs.default.waitDurationInOpenState=5s
+resilience4j.circuitbreaker.configs.default.permittedNumberOfCallsInHalfOpenState=3
+resilience4j.circuitbreaker.configs.default.failureRateThreshold=50
 ```
 
 ## Execução do Microserviço de Pagamento
@@ -100,3 +112,6 @@ payment-service.ribbon.listOfServers=http://localhost:8081,http://localhost:8082
 Se você encontrar problemas ou tiver sugestões de melhorias, sinta-se à vontade para abrir uma issue ou enviar um pull request.
 
 Este README fornece uma visão geral sobre como configurar e executar o microserviço de pagamento para um sistema de delivery. Certifique-se de verificar a documentação oficial das tecnologias utilizadas para obter informações mais detalhadas sobre suas funcionalidades e configurações.
+
+---
+
