@@ -1,4 +1,4 @@
-Aqui está uma versão atualizada do README, levando em consideração a remoção do Ribbon Load Balancer e a inclusão do Resilience4j para implementação do circuit breaker:
+
 
 ---
 
